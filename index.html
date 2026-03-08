@@ -1,0 +1,290 @@
+<style>
+    .battle-arena {
+        background: linear-gradient(145deg, #1e1b4b, #020617);
+        border: 2px solid #4338ca;
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+        padding: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .scanner {
+        position: absolute; left: 0; width: 100%; height: 2px;
+        background: rgba(139, 92, 246, 0.5);
+        box-shadow: 0 0 15px #8b5cf6;
+        animation: scan 4s linear infinite;
+        pointer-events: none;
+    }
+    @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
+    .btn-bet { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+    .btn-bet:active { transform: scale(0.95); }
+    .btn-bet:disabled { opacity: 0.5; cursor: not-allowed; }
+    .progress-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    .glass-panel { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; }
+    .history-item { font-size: 10px; padding: 4px 8px; border-radius: 5px; margin-bottom: 4px; }
+    
+    #liveBetFeed::-webkit-scrollbar { width: 4px; }
+    #liveBetFeed::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 10px; }
+    .animate-fade-in-down { animation: fadeInDown 0.3s ease-out; }
+    @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-10px); } 100% { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div class="battle-arena mt-10">
+    <div class="scanner"></div>
+    
+    <div class="flex flex-wrap justify-between items-center mb-6 gap-4 relative z-10 px-2">
+        <div class="glass-panel p-3 flex gap-6">
+            <div>
+                <span class="text-[9px] text-gray-400 block uppercase font-bold tracking-widest">DMX Balance</span>
+                <span id="userBalance" class="text-sm font-black text-white">0.00</span>
+            </div>
+            <div class="border-l border-white/10 pl-6">
+                <span class="text-[9px] text-gray-400 block uppercase font-bold tracking-widest">Your Bet</span>
+                <span id="userActiveBet" class="text-sm font-black text-indigo-400">A: 0 / Ω: 0</span>
+            </div>
+        </div>
+        
+        <div id="claimSection" class="hidden">
+            <button onclick="claimWinning()" class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2 rounded-full text-xs font-black shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-bounce">
+                CLAIM NET: <span id="claimableAmount">0</span> DMX
+            </button>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-start mb-8 relative z-10">
+        <div>
+            <h3 class="text-2xl font-black text-indigo-400 italic tracking-tighter flex items-center gap-2">
+                <i class="fa-solid fa-dice-d20"></i> DMX BATTLE ARENA
+            </h3>
+            <div class="flex flex-wrap gap-3 mt-1">
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Round #<span id="roundNum">---</span></p>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Pool: <span id="totalArenaPool" class="text-indigo-300">0 DMX</span></p>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Players: <span id="totalPlayersDisplay" class="text-indigo-300">0</span></p>
+            </div>
+        </div>
+        <div class="px-4 py-1 bg-indigo-500/20 border border-indigo-500/40 rounded-full text-[10px] font-bold text-indigo-300 uppercase">
+            Minority Wins 1.805x Net
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
+        <div id="sideA" class="md:col-span-5 p-6 bg-blue-900/10 border-2 border-blue-500/20 rounded-3xl">
+            <div class="flex justify-between items-end">
+                <span class="text-[10px] font-black text-blue-400 uppercase">Team Alpha</span>
+                <span id="percentA" class="text-xs font-bold text-blue-300">0%</span>
+            </div>
+            <p id="poolA" class="text-4xl font-black text-white mt-1">0</p>
+            <div class="progress-bar"><div id="barA" class="progress-fill bg-blue-500" style="width: 0%"></div></div>
+            <div class="mt-6 flex gap-2">
+                <button onclick="confirmAndPlaceBet('A', 500, this)" class="btn-bet flex-1 bg-blue-600/10 border border-blue-500/40 text-blue-400 py-2 rounded-xl text-[10px] font-bold">500</button>
+                <button onclick="handleCustomBet('A', this)" class="btn-bet flex-1 bg-blue-600 text-white py-2 rounded-xl text-[10px] font-bold uppercase tracking-tighter">Custom</button>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 glass-panel p-3">
+            <span class="text-[9px] text-gray-500 font-black uppercase mb-3 block text-center tracking-widest">History</span>
+            <div id="roundHistory" class="flex flex-col gap-1"></div>
+        </div>
+
+        <div id="sideB" class="md:col-span-5 p-6 bg-red-900/10 border-2 border-red-500/20 rounded-3xl">
+            <div class="flex justify-between items-end">
+                <span class="text-[10px] font-black text-red-400 uppercase">Team Omega</span>
+                <span id="percentB" class="text-xs font-bold text-red-300">0%</span>
+            </div>
+            <p id="poolB" class="text-4xl font-black text-white mt-1">0</p>
+            <div class="progress-bar"><div id="barB" class="progress-fill bg-red-500" style="width: 0%"></div></div>
+            <div class="mt-6 flex gap-2">
+                <button onclick="confirmAndPlaceBet('B', 500, this)" class="btn-bet flex-1 bg-red-600/10 border border-red-500/40 text-red-400 py-2 rounded-xl text-[10px] font-bold">500</button>
+                <button onclick="handleCustomBet('B', this)" class="btn-bet flex-1 bg-red-600 text-white py-2 rounded-xl text-[10px] font-bold uppercase tracking-tighter">Custom</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 glass-panel p-4 relative z-10 overflow-hidden">
+        <div class="flex justify-between items-center mb-3">
+            <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">Live Arena Activity</h4>
+            <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </div>
+        <div id="liveBetFeed" class="space-y-2 max-h-32 overflow-y-auto pr-2">
+            <p class="text-[10px] text-gray-500 italic text-center py-4">Waiting for arena combatants...</p>
+        </div>
+    </div>
+    
+    <div class="mt-6 bg-black/60 p-4 rounded-2xl border border-white/5 flex justify-between items-center relative z-10">
+        <div class="flex items-center gap-4">
+            <div class="relative flex items-center justify-center">
+                <svg class="w-10 h-10 transform -rotate-90">
+                    <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="3" fill="transparent" class="text-white/10" />
+                    <circle id="timerCircle" cx="20" cy="20" r="18" stroke="currentColor" stroke-width="3" fill="transparent" stroke-dasharray="113" stroke-dashoffset="0" class="text-amber-500 transition-all duration-1000" />
+                </svg>
+                <span id="timerText" class="absolute text-[10px] font-black text-white">--</span>
+            </div>
+            <span id="gameStatus" class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Syncing...</span>
+        </div>
+        <button id="resolveBtn" onclick="triggerResolve()" class="hidden bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 px-3 py-1 rounded text-[10px] font-black hover:bg-indigo-600 hover:text-white transition-all uppercase">Resolve Round</button>
+        <div id="lastWinner" class="text-[10px] font-black text-emerald-400 italic bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 uppercase tracking-wider">Loading...</div>
+    </div>
+</div>
+
+<script>
+    let lastHistoryFetch = 0;
+
+    // ❗ Claim function now defined
+    async function claimWinning() {
+        if (!window.signer) {
+            alert("Please connect your wallet first.");
+            return;
+        }
+
+        try {
+            const gameContract = new ethers.Contract(GAME_CONTRACT_ADDR, GAME_ABI, signer);
+            const rId = await gameContract.roundId();
+            const prevId = rId.sub(1);
+
+            const tx = await gameContract.claimReward(prevId);
+            const btn = document.querySelector('#claimSection button');
+            btn.innerText = "PROCESSING...";
+            btn.disabled = true;
+
+            await tx.wait();
+            alert("Success! Reward Claimed.");
+            refreshGameData();
+        } catch (e) {
+            console.error(e);
+            alert("Claim failed: Check if reward was already claimed or round is not resolved.");
+        } finally {
+            document.getElementById('claimSection').classList.add('hidden');
+        }
+    }
+
+    // ❗ Safer Listener with Duplicate Prevention
+    function initEventListener() {
+        if (!window.provider || window.betListenerAttached) return;
+        
+        const gameContract = new ethers.Contract(GAME_CONTRACT_ADDR, GAME_ABI, provider);
+        
+        gameContract.on("BetPlaced", (roundId, player, amount, side) => {
+            const feed = document.getElementById('liveBetFeed');
+            if (feed.innerHTML.includes("Waiting")) feed.innerHTML = "";
+            
+            const sideName = side === 0 ? "ALPHA" : "OMEGA";
+            const sideColor = side === 0 ? "text-blue-400" : "text-red-400";
+            const shortAddr = player.substring(0, 6) + "..." + player.substring(38);
+            
+            const betElement = `
+                <div class="flex justify-between items-center bg-white/5 p-2 rounded-lg border-l-2 ${side === 0 ? 'border-blue-500' : 'border-red-500'} animate-fade-in-down">
+                    <span class="text-[10px] text-gray-300 font-mono">${shortAddr}</span>
+                    <span class="text-[10px] font-bold ${sideColor}">BET ${ethers.utils.formatEther(amount)} DMX on ${sideName}</span>
+                </div>`;
+            
+            feed.insertAdjacentHTML('afterbegin', betElement);
+            if (feed.children.length > 10) feed.lastChild.remove();
+            refreshGameData();
+        });
+
+        window.betListenerAttached = true;
+    }
+
+    async function triggerResolve() {
+        if (!window.signer) return;
+        try {
+            const gameContract = new ethers.Contract(GAME_CONTRACT_ADDR, GAME_ABI, signer);
+            await (await gameContract.resolveRound()).wait();
+            refreshGameData();
+        } catch (e) { console.error(e); }
+    }
+
+    async function refreshGameData() {
+        if (!window.provider || GAME_CONTRACT_ADDR.includes("PASTE")) return;
+        const gameContract = new ethers.Contract(GAME_CONTRACT_ADDR, GAME_ABI, provider);
+        const dmxToken = new ethers.Contract(DMX_ADDR, TOKEN_ABI, provider);
+        const f = ethers.utils.formatEther;
+
+        try {
+            const rId = await gameContract.roundId();
+            document.getElementById('roundNum').innerText = rId.toString();
+
+            if (window.userAddress) {
+                const bal = await dmxToken.balanceOf(userAddress);
+                document.getElementById('userBalance').innerText = Number(f(bal)).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                
+                const myA = await gameContract.betsA(rId, userAddress);
+                const myB = await gameContract.betsB(rId, userAddress);
+                document.getElementById('userActiveBet').innerText = `A: ${f(myA)} / Ω: ${f(myB)}`;
+
+                if (rId.gt(1)) {
+                    const prevId = rId.sub(1);
+                    const prevRound = await gameContract.rounds(prevId);
+                    const alreadyClaimed = await gameContract.claimed(prevId, userAddress);
+                    
+                    let winAmt = ethers.BigNumber.from(0);
+                    if (prevRound.winner === 0) winAmt = await gameContract.betsA(prevId, userAddress);
+                    else if (prevRound.winner === 1) winAmt = await gameContract.betsB(prevId, userAddress);
+                    else if (prevRound.winner === 2) winAmt = (await gameContract.betsA(prevId, userAddress)).add(await gameContract.betsB(prevId, userAddress));
+
+                    if (winAmt.gt(0) && !alreadyClaimed) {
+                        const net = (prevRound.winner === 2) ? Number(f(winAmt)) : (Number(f(winAmt)) * 1.9 * 0.95);
+                        document.getElementById('claimSection').classList.remove('hidden');
+                        document.getElementById('claimableAmount').innerText = net.toFixed(2);
+                    } else {
+                        document.getElementById('claimSection').classList.add('hidden');
+                    }
+                }
+            }
+
+            // Update Last Winner Label
+            if (rId.gt(1)) {
+                const prev = await gameContract.rounds(rId.sub(1));
+                const winNames = ["ALPHA WON", "OMEGA WON", "DRAW"];
+                document.getElementById("lastWinner").innerText = winNames[prev.winner] || "WAITING...";
+            }
+
+            // History Throttled Update
+            const now = Date.now();
+            if (now - lastHistoryFetch > 30000) {
+                let historyHTML = "";
+                for (let i = 1; i < 6; i++) {
+                    if (rId.lte(i)) break;
+                    const hId = rId.sub(i);
+                    const hData = await gameContract.rounds(hId);
+                    const winLabel = ["ALPHA", "OMEGA", "DRAW"][hData.winner];
+                    const color = hData.winner === 0 ? "text-blue-400" : hData.winner === 1 ? "text-red-400" : "text-gray-400";
+                    historyHTML += `<div class="history-item bg-white/5 flex justify-between"><span>#${hId}</span><span class="${color} font-bold">${winLabel}</span></div>`;
+                }
+                document.getElementById('roundHistory').innerHTML = historyHTML;
+                lastHistoryFetch = now;
+            }
+
+            const round = await gameContract.rounds(rId);
+            const pA = Number(f(round.poolA));
+            const pB = Number(f(round.poolB));
+            const players = round.alphaPlayers.add(round.omegaPlayers).toString();
+            
+            document.getElementById('poolA').innerText = pA.toLocaleString();
+            document.getElementById('poolB').innerText = pB.toLocaleString();
+            
+            // ❗ Improved UX: Showing DMX label
+            document.getElementById('totalArenaPool').innerText = (pA + pB).toLocaleString() + " DMX";
+            document.getElementById('totalPlayersDisplay').innerText = players;
+
+            const latestBlock = await provider.getBlock('latest');
+            const timeLeft = round.endTime.toNumber() - latestBlock.timestamp;
+            updateTimerUI(timeLeft);
+            document.getElementById('resolveBtn').style.display = (timeLeft <= 0) ? 'block' : 'none';
+
+        } catch (e) { console.error("Refresh Error:", e); }
+    }
+
+    function updateTimerUI(seconds) {
+        const safeSecs = Math.max(0, seconds);
+        document.getElementById('timerText').innerText = safeSecs;
+        const offset = (safeSecs / ROUND_DURATION) * 113; 
+        document.getElementById('timerCircle').style.strokeDashoffset = 113 - offset;
+        document.getElementById('gameStatus').innerText = safeSecs <= 0 ? "ROUND OVER" : "ARENA ACTIVE";
+    }
+
+    setInterval(refreshGameData, 5000);
+</script>
+</body>
