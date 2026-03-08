@@ -1574,6 +1574,7 @@ const GAME_ABI = [
         window.betListenerAttached = true;
     }
 
+
     async function triggerResolve() {
         if (!window.signer) return;
         try {
@@ -1673,6 +1674,61 @@ const GAME_ABI = [
     }
 
     setInterval(refreshGameData, 5000);
+    window.addEventListener("load", () => {
+
+setTimeout(()=>{
+
+refreshGameData();
+initEventListener();
+
+},3000);
+
+});
+
+    async function confirmAndPlaceBet(side, amount){
+
+if(!signer){
+alert("Connect wallet first");
+return;
+}
+
+try{
+
+const game = new ethers.Contract(GAME_CONTRACT_ADDR, GAME_ABI, signer);
+
+const wei = ethers.utils.parseEther(amount.toString());
+
+const sideId = side === "A" ? 0 : 1;
+
+const tx = await game.bet(sideId, wei);
+
+await tx.wait();
+
+alert("Bet placed!");
+
+refreshGameData();
+
+}catch(e){
+
+console.log(e);
+alert("Bet failed");
+
+}
+
+}
+
+
+
+function handleCustomBet(side){
+
+let amt = prompt("Enter DMX amount");
+
+if(!amt) return;
+
+confirmAndPlaceBet(side, amt);
+
+}
+
     </script>
 </body>
 </html>
