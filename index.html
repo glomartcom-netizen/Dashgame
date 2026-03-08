@@ -1505,15 +1505,25 @@ const GAME_CONTRACT_ADDR = "PASTE_ARENA_CONTRACT_ADDRESS";
 const ROUND_DURATION = 15;
 
 const GAME_ABI = [
-"function bet(uint8,uint256)",
-"function claimReward(uint256)",
+
+"function bet(uint8 side,uint256 amount)",
+
+"function claimReward(uint256 roundId)",
+
 "function resolveRound()",
+
 "function roundId() view returns(uint256)",
-"function rounds(uint256) view returns(uint256,uint256,uint256,uint8,bool,uint256,uint256)",
+
+"function rounds(uint256) view returns(uint256 poolA,uint256 poolB,uint256 endTime,uint8 winner,bool resolved,uint256 alphaPlayers,uint256 omegaPlayers)",
+
 "function betsA(uint256,address) view returns(uint256)",
+
 "function betsB(uint256,address) view returns(uint256)",
+
 "function claimed(uint256,address) view returns(bool)",
-"event BetPlaced(uint256,address,uint256,uint8)"
+
+"event BetPlaced(uint256 indexed roundId,address indexed player,uint256 amount,uint8 side)"
+
 ];
     
     let lastHistoryFetch = 0;
@@ -1687,33 +1697,58 @@ initEventListener();
 
     async function confirmAndPlaceBet(side, amount){
 
+if(window.betPending) return;
+window.betPending = true;
+
 if(!signer){
-alert("Connect wallet first");
+alert("Please connect wallet first");
+window.betPending = false;
+return;
+}
+
+if(!amount || amount <= 0){
+alert("Invalid bet amount");
+window.betPending = false;
+return;
+}
+
+if(GAME_CONTRACT_ADDR.includes("PASTE")){
+alert("Arena contract not configured");
+window.betPending = false;
 return;
 }
 
 try{
 
-const game = new ethers.Contract(GAME_CONTRACT_ADDR, GAME_ABI, signer);
+const game = new ethers.Contract(
+GAME_CONTRACT_ADDR,
+GAME_ABI,
+signer
+);
 
-const wei = ethers.utils.parseEther(amount.toString());
+const weiAmount = ethers.utils.parseEther(amount.toString());
 
 const sideId = side === "A" ? 0 : 1;
 
-const tx = await game.bet(sideId, wei);
+const tx = await game.bet(sideId, weiAmount);
+
+alert("Transaction sent...");
 
 await tx.wait();
 
-alert("Bet placed!");
+alert("Bet placed successfully!");
 
 refreshGameData();
 
 }catch(e){
 
-console.log(e);
-alert("Bet failed");
+console.log("Bet error:", e);
+
+alert("Bet failed. Check wallet or gas.");
 
 }
+
+window.betPending = false;
 
 }
 
@@ -1721,9 +1756,16 @@ alert("Bet failed");
 
 function handleCustomBet(side){
 
-let amt = prompt("Enter DMX amount");
+let amt = prompt("Enter DMX bet amount");
 
 if(!amt) return;
+
+amt = parseFloat(amt);
+
+if(isNaN(amt) || amt <= 0){
+alert("Invalid amount");
+return;
+}
 
 confirmAndPlaceBet(side, amt);
 
