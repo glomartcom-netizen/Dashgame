@@ -1493,6 +1493,23 @@ window.open(
 </div>
 
 <script>
+
+const GAME_CONTRACT_ADDR = "PASTE_ARENA_CONTRACT_ADDRESS";
+
+const ROUND_DURATION = 15;
+
+const GAME_ABI = [
+"function bet(uint8,uint256)",
+"function claimReward(uint256)",
+"function resolveRound()",
+"function roundId() view returns(uint256)",
+"function rounds(uint256) view returns(uint256,uint256,uint256,uint8,bool,uint256,uint256)",
+"function betsA(uint256,address) view returns(uint256)",
+"function betsB(uint256,address) view returns(uint256)",
+"function claimed(uint256,address) view returns(bool)",
+"event BetPlaced(uint256,address,uint256,uint8)"
+];
+    
     let lastHistoryFetch = 0;
 
     // ❗ Claim function now defined
