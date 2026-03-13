@@ -1059,8 +1059,7 @@ console.log("Dashboard sync error");
       
 },10000);      
      
-    
-    async function refreshData() {  
+   async function refreshData() {  
         if(!contract || !userAddress) return;  
         const f = ethers.utils.formatEther;  
         try {  
@@ -1094,21 +1093,15 @@ document.getElementById('capDisplay').innerText = `${earned.toFixed(0)} / ${cap.
 document.getElementById('capBar').style.width = prog + "%";  
 document.getElementById('capPercent').innerText = prog.toFixed(1) + "%";  
               
-            const banner = document.getElementById('statusBanner');
-
-if(u[9]) {
-    banner.innerText = "🚨 INCOME CAP REACHED - PLEASE RESTAKE 🚨";
-    banner.className = "block bg-red-600/20 text-red-500 p-3 rounded-xl text-center font-black animate-pulse mb-4";
-} else {
-    banner.className = "hidden";
-}
-
-updateTimer(Number(stats[6]));
-referralBonusCheck();
-
-} catch(e) { 
-    console.warn("Syncing..."); 
-}
+            const banner = document.getElementById('statusBanner');  
+            if(u[9]) {  
+                banner.innerText = "🚨 INCOME CAP REACHED - PLEASE RESTAKE 🚨";  
+                banner.className = "block bg-red-600/20 text-red-500 p-3 rounded-xl text-center font-black animate-pulse mb-4";  
+            } else { banner.className = "hidden"; }  
+  
+            updateTimer(Number(stats[6]));  
+        } catch(e) { console.warn("Syncing..."); }  
+    }  
   
     function updateTimer(expiry) {  
         const diff = expiry - Math.floor(Date.now() / 1000);  
@@ -1174,7 +1167,8 @@ mode ? "Manual" : "LP Based";
 console.log("Price sync...");
 }
 
-}
+} 
+    
   
     async function updateRewardPool(){  
   
