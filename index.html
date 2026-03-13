@@ -21,23 +21,33 @@ max-width:100%;
 max-height:180px;
 object-fit:cover;
 }
+/* ===== GAME BUTTON ===== */
+
 .game-btn{
 background:#0f172a;
 border:1px solid #06b6d4;
 padding:16px;
 border-radius:12px;
 font-weight:bold;
-transition:0.3s;
 cursor:pointer;
 text-align:center;
+transition:all 0.3s ease;
 }
 
+/* hover glow */
 .game-btn:hover{
 background:#06b6d4;
 color:black;
 transform:translateY(-3px);
-box-shadow:0 0 10px #06b6d4;
+box-shadow:0 0 10px #06b6d4,0 0 20px #06b6d4;
 }
+
+/* click animation */
+.game-btn:active{
+transform:scale(0.95);
+}
+
+/* ===== BONUS BUTTON ===== */
 
 .btn-bonus{
 background:linear-gradient(90deg,#f59e0b,#ea580c);
@@ -46,27 +56,47 @@ border-radius:10px;
 font-weight:bold;
 width:100%;
 margin-top:8px;
-}
-    #gamePanel{
 transition:all 0.3s ease;
-    }
-    
-body{
-transition:transform 0.2s ease;
-          }
-
-.game-btn:active{
-transform:scale(0.95);
 }
+
+/* bonus hover */
+.btn-bonus:hover{
+transform:scale(1.05);
+box-shadow:0 0 12px orange;
+}
+
+/* ===== GAME PANEL ANIMATION ===== */
+
+#gamePanel{
+transition:all 0.3s ease;
+opacity:0;
+transform:translateY(10px);
+}
+
+#gamePanel.active{
+opacity:1;
+transform:translateY(0);
+}
+
+/* ===== SLOT MACHINE DISPLAY ===== */
 
 #slotDisplay{
 animation: glow 1s infinite alternate;
+font-size:48px;
+letter-spacing:10px;
 }
 
+/* slot glow animation */
 @keyframes glow{
 from{ text-shadow:0 0 5px gold; }
 to{ text-shadow:0 0 20px orange; }
-}    
+}
+
+/* ===== BODY SHAKE EFFECT (GAME EFFECT) ===== */
+
+body{
+transition:transform 0.2s ease;
+}
     
 @keyframes claimGlow {
 
@@ -196,6 +226,25 @@ Copy
 
 </div>
 
+<button onclick="toggleSound()" id="soundBtn"
+class="bg-gray-800 px-3 py-1 rounded-lg text-sm">
+🔊 Sound ON
+</button>
+
+<div class="glass-card p-4 mt-4 text-xs text-gray-300">
+
+<p class="text-amber-400 font-bold mb-2">
+🏆 Recent Winners
+</p>
+
+<ul id="winnerList" class="space-y-1">
+<li>0x81a...29f won <b>120 DMX</b></li>
+<li>0x6bc...9a1 won <b>300 DMX</b></li>
+<li>0xa29...88c won <b>50 DMX</b></li>
+</ul>
+
+</div>    
+
 <!-- GAME BUTTON -->
 <button onclick="toggleGamePanel()" 
 class="bg-cyan-500 px-4 py-2 rounded-xl font-bold mt-4">
@@ -215,76 +264,101 @@ class="bg-cyan-500 px-4 py-2 rounded-xl font-bold mt-4">
 <div class="bg-black/40 border border-cyan-500/20 rounded-xl p-4 mb-4 text-xs text-gray-300 space-y-3">
 
 <p class="text-amber-400 font-bold text-sm">
-📜 Game Rules
+🎮 Game Information
+</p>
+
+<div class="border-b border-white/10 pb-2">
+
+<p class="text-cyan-400 font-bold">
+🆓 Free Daily Game
 </p>
 
 <ul class="space-y-1">
-<li>• Each wallet can play <b>once every 24 hours</b>.</li>
-<li>• Game rewards range between <b>5 – 100 DMX</b>.</li>
-<li>• Rewards will be added to your <b>Claimable Balance</b>.</li>
-<li>• You can claim rewards once it reaches <b>100 DMX minimum</b>.</li>
+<li>• Each wallet can play <b>1 free game every 24 hours</b>.</li>
+<li>• Possible rewards: <b>5 – 100 DMX</b>.</li>
+<li>• Rewards will appear in your <b>Claimable Balance</b>.</li>
 </ul>
 
-<div class="border-t border-white/10 pt-2">
+</div>
 
-<p class="text-amber-400 font-bold text-sm">
+<div class="border-b border-white/10 pb-2">
+
+<p class="text-cyan-400 font-bold">
+💰 Paid Games
+</p>
+
+<ul class="space-y-1">
+<li>• 10 DMX Entry → Win up to <b>30 DMX</b></li>
+<li>• 50 DMX Entry → Win up to <b>150 DMX</b></li>
+<li>• 100 DMX Entry → Win up to <b>300 DMX</b></li>
+<li>• 200 DMX Entry → Win up to <b>600 DMX</b></li>
+<li>• 500 DMX Entry → Win up to <b>1500 DMX Jackpot</b></li>
+</ul>
+
+</div>
+
+<div class="border-b border-white/10 pb-2">
+
+<p class="text-cyan-400 font-bold">
 🎁 Bonus Tasks
 </p>
 
 <ul class="space-y-1">
-<li>• Join our Telegram channel to receive <b>+1 extra spin</b>.</li>
-<li>• Share the website with friends to unlock <b>+1 bonus spin</b>.</li>
+<li>• Join our Telegram channel → <b>+1 extra spin</b></li>
+<li>• Share the website with friends → <b>+1 bonus spin</b></li>
 </ul>
 
 </div>
 
-<div class="border-t border-white/10 pt-2">
+<div>
 
-<p class="text-amber-400 font-bold text-sm">
+<p class="text-cyan-400 font-bold">
 👥 Referral Rewards
 </p>
 
-<p class="text-gray-300">
-Invite friends using your referral link. Build your network and earn additional team rewards.
-</p>
+<ul class="space-y-1">
+<li>• Invite friends using your referral link.</li>
+<li>• Grow your team and unlock additional rewards.</li>
+<li>• Referral activity may increase bonus opportunities.</li>
+</ul>
 
 </div>
 
 <p class="text-[10px] text-gray-400 italic">
-💡 Game rewards will appear in the <b>Claimable</b> section of your dashboard.
+⚠ Game rewards are based on random probability and platform reward algorithm.
 </p>
 
-</div>    
+</div>
 
 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 
-<button onclick="spinWheel()" class="game-btn">
+<button onclick="openSpinWheel()" class="game-btn">
 🎡 Spin Wheel
 </button>
 
-<button onclick="luckyBox()" class="game-btn">
+<button onclick="openLuckyBox()" class="game-btn">
 🎁 Lucky Box
 </button>
 
-<button onclick="diceGame()" class="game-btn">
+<button onclick="openDiceGame()" class="game-btn">
 🎲 Dice
 </button>
 
-<button onclick="guessNumber()" class="game-btn">
+<button onclick="openGuessGame()" class="game-btn">
 🔢 Guess Number
 </button>
 
-<button onclick="cardFlip()" class="game-btn">
+<button onclick="openCardGame()" class="game-btn">
 🃏 Card Flip
 </button>
 
-<button onclick="targetShot()" class="game-btn">
+<button onclick="openTargetGame()" class="game-btn">
 🎯 Target Shot
 </button>
 
- <button onclick="openTreasure()" class="game-btn">
+<button onclick="openTreasure()" class="game-btn">
 💎 Treasure Hunt
- </button>
+</button>
 
 <button onclick="startSlot()" class="game-btn">
 🎰 Slot Machine
@@ -292,9 +366,33 @@ Invite friends using your referral link. Build your network and earn additional 
 
 <button onclick="openColorGame()" class="game-btn">
 🎨 Color Pick
-</button>    
+</button>
 
 </div>
+
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+
+<button onclick="playPaidGame(10)" class="game-btn">
+💰 10 DMX Play
+</button>
+
+<button onclick="playPaidGame(50)" class="game-btn">
+🔥 50 DMX Play
+</button>
+
+<button onclick="playPaidGame(100)" class="game-btn">
+💎 100 DMX Play
+</button>
+
+<button onclick="playPaidGame(200)" class="game-btn">
+🚀 200 DMX Play
+</button>
+
+<button onclick="playPaidGame(500)" class="game-btn">
+👑 500 DMX Jackpot
+</button>
+
+</div>    
 
 <div id="spinWheelPanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
 
@@ -1693,21 +1791,91 @@ function setButtonState(isLoading) {
 const panel = document.getElementById("gamePanel");
 
 if(panel.style.display === "none"){
+
 panel.style.display = "block";
+
+setTimeout(()=>{
+panel.classList.add("active");
+},10);
+
 }
 else{
+
+panel.classList.remove("active");
+
+setTimeout(()=>{
 panel.style.display = "none";
+},300);
+
 }
 
-      }
+}
 
-  // SOUND EFFECTS
+// ===============================
+// SOUND EFFECTS SYSTEM
+// ===============================
+
+let soundEnabled = true;
+
 const spinSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
 const winSound = new Audio("https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3");
 const diceSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2068/2068-preview.mp3");
 const boxSound = new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3");
 const cardSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2084/2084-preview.mp3");
 const treasureSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2218/2218-preview.mp3");
+
+
+// safe play function
+function playSound(sound){
+
+if(!soundEnabled) return;
+
+try{
+sound.currentTime = 0;
+sound.play();
+}catch(e){
+console.log("Sound blocked");
+}
+
+}
+
+
+// unlock audio on first click (mobile fix)
+document.addEventListener("click", () => {
+
+spinSound.play().then(()=>spinSound.pause()).catch(()=>{});
+winSound.play().then(()=>winSound.pause()).catch(()=>{});
+diceSound.play().then(()=>diceSound.pause()).catch(()=>{});
+boxSound.play().then(()=>boxSound.pause()).catch(()=>{});
+cardSound.play().then(()=>cardSound.pause()).catch(()=>{});
+treasureSound.play().then(()=>treasureSound.pause()).catch(()=>{});
+
+},{once:true});
+
+
+// ===============================
+// SOUND TOGGLE
+// ===============================
+
+function toggleSound(){
+
+soundEnabled = !soundEnabled;
+
+const btn = document.getElementById("soundBtn");
+
+if(!btn) return;
+
+if(soundEnabled){
+
+btn.innerText = "🔊 Sound ON";
+
+}else{
+
+btn.innerText = "🔇 Sound OFF";
+
+}
+
+}
     
   // ===============================
 // DMX GAME ENGINE FULL SYSTEM
@@ -2359,7 +2527,77 @@ winner.slice(0,6) + "..." + winner.slice(-4);
 
 }
 
-showWeeklyWinner();    
+showWeeklyWinner();
+
+async function playPaidGame(entry){
+
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+let reward=0;
+
+if(entry===10){
+const pool=[5,10,15,20,30];
+reward=pool[Math.floor(Math.random()*pool.length)];
+}
+
+if(entry===50){
+const pool=[20,40,80,100,150];
+reward=pool[Math.floor(Math.random()*pool.length)];
+}
+
+if(entry===100){
+const pool=[50,80,150,300,1000];
+reward=pool[Math.floor(Math.random()*pool.length)];
+}
+
+if(entry===200){
+const pool=[100,150,300,500,600];
+reward=pool[Math.floor(Math.random()*pool.length)];
+}
+
+if(entry===500){
+const pool=[250,400,600,1000,1500];
+reward=pool[Math.floor(Math.random()*pool.length)];
+}
+
+playSound(spinSound);
+
+setTimeout(()=>{
+
+playSound(winSound);
+
+alert(
+"🎮 Paid Game Result\n\n"+
+"Entry: "+entry+" DMX\n"+
+"You Won: "+reward+" DMX"
+);
+
+},2000);
+
+      }    
+
+function addWinner(wallet,reward){
+
+const list=document.getElementById("winnerList");
+
+const item=document.createElement("li");
+
+const short=
+wallet.slice(0,5)+"..."+wallet.slice(-3);
+
+item.innerHTML=short+" won <b>"+reward+" DMX</b>";
+
+list.prepend(item);
+
+// limit to 5 items
+if(list.children.length>5){
+list.removeChild(list.lastChild);
+}
+
+    }    
      
 </script>  
 </body>  
