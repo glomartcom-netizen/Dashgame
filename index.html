@@ -1934,13 +1934,13 @@ return false;
 
 const last=await contract.lastGamePlayed(wallet);
 
-const lastPlayed=Number(last);
+const lastPlayed=last.toNumber();
 
 const now=Math.floor(Date.now()/1000);
 
 if(now-lastPlayed<86400){
 
-alert("You already played today");
+alert("⏳ You already played today.\nCome back tomorrow.");
 
 return false;
 
@@ -1964,9 +1964,18 @@ return false;
 
 async function claimGameReward(amount){
 
+if(gameRunning) return;
+gameRunning = true;
+
 try{
 
-const tx=await contract.claimGameReward(
+if(!contract || !userAddress){
+alert("Connect wallet first");
+gameRunning=false;
+return;
+}
+
+const tx = await contract.claimGameReward(
 ethers.utils.parseEther(amount.toString())
 );
 
@@ -1974,13 +1983,15 @@ alert("Transaction sent...");
 
 await tx.wait();
 
-alert("Reward received "+amount+" DMX");
+alert("💰 Reward received: "+amount+" DMX");
 
 recordWin(userAddress,amount);
 
 }catch(e){
 
-alert("Claim failed");
+console.error(e);
+
+alert("❌ Claim failed. Check reward pool or gas.");
 
 }finally{
 
@@ -1999,9 +2010,7 @@ function recordWin(wallet,reward){
 weeklyPlayers.push({
 
 wallet:wallet,
-
 reward:reward,
-
 time:Date.now()
 
 });
@@ -2011,8 +2020,12 @@ localStorage.setItem(
 JSON.stringify(weeklyPlayers)
 );
 
-}
+/* update leaderboard */
 
+showWeeklyWinner();
+
+}
+    
 // ===============================
 // WEEKLY JACKPOT WINNER
 // ===============================
@@ -2020,16 +2033,21 @@ JSON.stringify(weeklyPlayers)
 function getWeeklyWinner(){
 
 let max=0;
-
 let winner=null;
+
+const now = Date.now();
+const week = 7*24*60*60*1000;
 
 weeklyPlayers.forEach(p=>{
 
-if(p.reward>max){
+if(now - p.time <= week){
 
-max=p.reward;
+if(p.reward > max){
 
-winner=p.wallet;
+max = p.reward;
+winner = p.wallet;
+
+}
 
 }
 
@@ -2039,9 +2057,6 @@ return winner;
 
 }
 
-    if(gameRunning) return;
-gameRunning=true;
- 
 // ===============================
 // GAME 1 — SPIN WHEEL
 // ===============================
@@ -2052,8 +2067,11 @@ document.getElementById("spinWheelPanel").style.display="block";
 
 }
 
-function spinWheelGame(){
+async function spinWheelGame(){
 
+if(gameRunning) return;
+gameRunning=true;
+    
 if(!userAddress){
 alert("Connect wallet first");
 return;
@@ -2146,7 +2164,7 @@ document.getElementById("diceGamePanel").style.display="block";
 
 }
 
-async function rollDice()
+async function rollDice(){
 
 if(!userAddress){
 alert("Connect wallet first");
@@ -2213,7 +2231,7 @@ document.getElementById("treasurePanel").style.display="block";
 
 }
 
-async function pickTreasure(choice)
+async function pickTreasure(choice){
 
 if(!userAddress){
 alert("Connect wallet first");
@@ -2241,7 +2259,7 @@ document.getElementById("cardGamePanel").style.display="block";
 
 }
 
-async function flipCard(card)
+async function flipCard(card){
 
 if(!userAddress){
 alert("Connect wallet first");
@@ -2279,7 +2297,7 @@ document.getElementById("targetGamePanel").style.display="block";
 
 }
 
-async function shootTarget()
+async function shootTarget(){
 
 if(!userAddress){
 alert("Connect wallet first");
@@ -2319,13 +2337,16 @@ document.getElementById("slotGame").style.display="block";
 
 }
 
-function spinSlot(){
+async function spinSlot(){
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
-if(!(await checkGameCooldown(userAddress))) return;    
+if(!(await checkGameCooldown(userAddress))) return;
+
+playSound(spinSound);
 
 const symbols=["7️⃣","🍒","⭐","💎","🔔"];
 
@@ -2347,7 +2368,15 @@ if(spins>15){
 
 clearInterval(interval);
 
-let finalA, finalB, finalC
+/* final result */
+
+let finalA=symbols[Math.floor(Math.random()*symbols.length)];
+let finalB=symbols[Math.floor(Math.random()*symbols.length)];
+let finalC=symbols[Math.floor(Math.random()*symbols.length)];
+
+display.innerText=finalA+" "+finalB+" "+finalC;
+
+checkSlotResult(finalA,finalB,finalC);
 
 }
 
@@ -2359,7 +2388,7 @@ function checkSlotResult(a,b,c){
 
 if(a===b && b===c){
 
-winSound.play();
+playSound(winSound);
 
 alert("🎉 JACKPOT!\nYou won 100 DMX");
 
@@ -2371,7 +2400,7 @@ alert("👍 Small win\nYou won 20 DMX");
 }
 else{
 
-alert("❌ Try again");
+alert("❌ Try again tomorrow");
 
 }
 
@@ -2383,7 +2412,7 @@ document.getElementById("guessGamePanel").style.display="block";
 
 }
 
-async function guessNumber(num)
+async function guessNumber(num){
 
 if(!userAddress){
 alert("Connect wallet first");
