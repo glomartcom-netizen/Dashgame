@@ -54,6 +54,19 @@ transition:all 0.3s ease;
 body{
 transition:transform 0.2s ease;
           }
+
+.game-btn:active{
+transform:scale(0.95);
+}
+
+#slotDisplay{
+animation: glow 1s infinite alternate;
+}
+
+@keyframes glow{
+from{ text-shadow:0 0 5px gold; }
+to{ text-shadow:0 0 20px orange; }
+}    
     
 @keyframes claimGlow {
 
@@ -257,8 +270,8 @@ Invite friends using your referral link. Build your network and earn additional 
 🎲 Dice
 </button>
 
-<button onclick="treasureGame()" class="game-btn">
-💎 Treasure
+<button onclick="guessNumber()" class="game-btn">
+🔢 Guess Number
 </button>
 
 <button onclick="cardFlip()" class="game-btn">
@@ -267,7 +280,147 @@ Invite friends using your referral link. Build your network and earn additional 
 
 <button onclick="targetShot()" class="game-btn">
 🎯 Target Shot
+</button>
+
+ <button onclick="openTreasure()" class="game-btn">
+💎 Treasure Hunt
+ </button>
+
+<button onclick="startSlot()" class="game-btn">
+🎰 Slot Machine
+</button>
+
+<button onclick="openColorGame()" class="game-btn">
+🎨 Color Pick
 </button>    
+
+</div>
+
+<div id="spinWheelPanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+🎡 Spin the Wheel
+</p>
+
+<div id="wheelDisplay" style="font-size:50px;margin-bottom:10px;">
+🎡
+</div>
+
+<button onclick="spinWheelGame()" class="btn-bonus">
+SPIN
+</button>
+
+</div>    
+
+<div id="luckyBoxPanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+🎁 Choose a Lucky Box
+</p>
+
+<div class="flex justify-center gap-4">
+
+<button onclick="openBox(1)" class="game-btn">📦</button>
+
+<button onclick="openBox(2)" class="game-btn">📦</button>
+
+<button onclick="openBox(3)" class="game-btn">📦</button>
+
+</div>
+
+</div>    
+
+<div id="diceGamePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+🎲 Roll the Dice
+</p>
+
+<div id="diceDisplay" style="font-size:60px;margin-bottom:10px;">
+🎲
+</div>
+
+<button onclick="rollDice()" class="btn-bonus">
+ROLL
+</button>
+
+</div>    
+
+<div id="colorGamePanel" style="display:none;" class="mt-4 glass-card p-4 text-center">
+
+<p class="text-sm mb-3 text-amber-400 font-bold">
+Pick a Color
+</p>
+
+<div class="flex justify-center gap-3">
+
+<button onclick="pickColor('green')" style="background:green;padding:14px;border-radius:10px;">
+Green
+</button>
+
+<button onclick="pickColor('red')" style="background:red;padding:14px;border-radius:10px;">
+Red
+</button>
+
+<button onclick="pickColor('orange')" style="background:orange;padding:14px;border-radius:10px;">
+Orange
+</button>
+
+</div>
+
+</div>
+
+ <div id="cardGamePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+Pick a Card
+</p>
+
+<div class="flex justify-center gap-4">
+
+<button onclick="flipCard(1)" class="game-btn">🂠</button>
+
+<button onclick="flipCard(2)" class="game-btn">🂠</button>
+
+<button onclick="flipCard(3)" class="game-btn">🂠</button>
+
+</div>
+
+ </div>   
+
+<div id="treasurePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+💎 Pick a Treasure Chest
+</p>
+
+<div class="flex justify-center gap-4">
+
+<button onclick="pickTreasure(1)" class="game-btn">🪙</button>
+
+<button onclick="pickTreasure(2)" class="game-btn">💰</button>
+
+<button onclick="pickTreasure(3)" class="game-btn">📦</button>
+
+</div>
+
+</div>    
+
+<div id="slotGame" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+🎰 Slot Machine
+</p>
+
+<div id="slotDisplay" style="font-size:45px;letter-spacing:10px;">
+🍒 🍒 🍒
+</div>
+
+<button onclick="spinSlot()" class="btn-bonus mt-4">
+SPIN
+</button>
+
+</div>    
 
 </div>
 
@@ -1688,31 +1841,51 @@ return winner;
 // GAME 1 — SPIN WHEEL
 // ===============================
 
-async function spinWheel(){
+function openSpinWheel(){
 
-if(gameRunning) return;
+document.getElementById("spinWheelPanel").style.display="block";
 
-if(!(await checkGameCooldown(userAddress))) return;
+}
 
-gameRunning=true;
+function spinWheelGame(){
 
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+spinSound.currentTime=0;
 spinSound.play();
 
-const reward=getRandomReward();
+const rewards=[5,10,20,30,50,100];
 
-document.body.style.transform="rotate(2deg)";
+let spins=0;
 
-setTimeout(async()=>{
+const display=document.getElementById("wheelDisplay");
 
-document.body.style.transform="rotate(0deg)";
+const interval=setInterval(()=>{
 
+display.innerText="🎡";
+
+spins++;
+
+if(spins>15){
+
+clearInterval(interval);
+
+const reward=rewards[Math.floor(Math.random()*rewards.length)];
+
+winSound.currentTime=0;
 winSound.play();
 
-alert("🎡 Spin Wheel Result\n\nYou won "+reward+" DMX");
+alert(
+"🎡 Wheel Stopped!\n\n"+
+"You won "+reward+" DMX"
+);
 
-await claimGameReward(reward);
+}
 
-},3000);
+},100);
 
 }
 
@@ -1720,27 +1893,37 @@ await claimGameReward(reward);
 // GAME 2 — LUCKY BOX
 // ===============================
 
-async function luckyBox(){
+function openLuckyBox(){
 
-if(gameRunning) return;
+document.getElementById("luckyBoxPanel").style.display="block";
 
-if(!(await checkGameCooldown(userAddress))) return;
+}
 
-gameRunning=true;
+function openBox(box){
 
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+boxSound.currentTime=0;
 boxSound.play();
 
-const reward=getRandomReward();
+const rewards=[5,10,20,30,50];
 
-setTimeout(async()=>{
+setTimeout(()=>{
 
+const reward=rewards[Math.floor(Math.random()*rewards.length)];
+
+winSound.currentTime=0;
 winSound.play();
 
-alert("🎁 Lucky Box Opened\n\nReward: "+reward+" DMX");
+alert(
+"🎁 Lucky Box Opened!\n\n"+
+"You won "+reward+" DMX"
+);
 
-await claimGameReward(reward);
-
-},2000);
+},1000);
 
 }
 
@@ -1748,29 +1931,65 @@ await claimGameReward(reward);
 // GAME 3 — DICE
 // ===============================
 
-async function diceGame(){
+function openDiceGame(){
 
-if(gameRunning) return;
+document.getElementById("diceGamePanel").style.display="block";
 
-if(!(await checkGameCooldown(userAddress))) return;
+}
 
-gameRunning=true;
+function rollDice(){
 
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+diceSound.currentTime = 0;
 diceSound.play();
 
-const diceRewards=[5,10,20,30];
+let rolls = 0;
 
-const reward=diceRewards[Math.floor(Math.random()*diceRewards.length)];
+const display = document.getElementById("diceDisplay");
 
-setTimeout(async()=>{
+const interval = setInterval(()=>{
 
+const dice = Math.floor(Math.random()*6)+1;
+
+display.innerText = "🎲 "+dice;
+
+rolls++;
+
+if(rolls > 10){
+
+clearInterval(interval);
+
+const finalDice = Math.floor(Math.random()*6)+1;
+
+display.innerText = "🎲 "+finalDice;
+
+let reward = 0;
+
+if(finalDice >= 5){
+reward = 50;
+}
+else if(finalDice >=3){
+reward = 20;
+}
+else{
+reward = 5;
+}
+
+winSound.currentTime = 0;
 winSound.play();
 
-alert("🎲 Dice Rolled\n\nReward: "+reward+" DMX");
+alert(
+"🎲 Dice Result: "+finalDice+
+"\n\nReward: "+reward+" DMX"
+);
 
-await claimGameReward(reward);
+}
 
-},1500);
+},120);
 
 }
 
@@ -1778,54 +1997,62 @@ await claimGameReward(reward);
 // GAME 4 — TREASURE
 // ===============================
 
-async function treasureGame(){
+function openTreasure(){
 
-if(gameRunning) return;
+document.getElementById("treasurePanel").style.display="block";
 
-if(!(await checkGameCooldown(userAddress))) return;
+}
 
-gameRunning=true;
+function pickTreasure(choice){
 
-treasureSound.play();
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
 
-const reward=getRandomReward();
+const rewards=[5,10,20,50];
 
-setTimeout(async()=>{
+const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
 winSound.play();
 
-alert("💎 Treasure Found\n\nReward: "+reward+" DMX");
-
-await claimGameReward(reward);
-
-},1500);
+alert("💎 Treasure opened!\n\nYou found "+reward+" DMX");
 
 }
+    
 // ===============================
 // GAME 5 — CARD FLIP
 // ===============================
 
-async function cardFlip(){
+function openCardGame(){
 
-if(gameRunning) return;
+document.getElementById("cardGamePanel").style.display="block";
 
-if(!(await checkGameCooldown(userAddress))) return;
+}
 
-gameRunning=true;
+function flipCard(card){
+
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
 
 cardSound.play();
 
-const reward=getRandomReward();
+const rewards=[5,10,20,50];
 
-setTimeout(async()=>{
+const reward=rewards[Math.floor(Math.random()*rewards.length)];
+
+setTimeout(()=>{
 
 winSound.play();
 
-alert("🃏 Card Flip Result\n\nYou got "+reward+" DMX");
+alert(
+"🃏 Card Flipped!\n\n"+
+"You won "+reward+" DMX"
+);
 
-await claimGameReward(reward);
-
-},1200);
+},800);
 
 }
 
@@ -1833,39 +2060,171 @@ await claimGameReward(reward);
 // GAME 6 — TARGET SHOT
 // ===============================
 
-async function targetShot(){
+function openTargetGame(){
 
-if(gameRunning) return;
-
-if(!(await checkGameCooldown(userAddress))) return;
-
-gameRunning=true;
-
-const shots = [0,10,20,50,100];
-
-const reward = shots[Math.floor(Math.random()*shots.length)];
-
-setTimeout(async()=>{
-
-if(reward === 0){
-
-alert("🎯 Shot Missed!\n\nBetter luck next time");
-
-gameRunning=false;
-
-return;
+document.getElementById("targetGamePanel").style.display="block";
 
 }
 
+function shootTarget(){
+
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+const chance=Math.random();
+
+if(chance > 0.6){
+
 winSound.play();
 
-alert("🎯 Target Hit!\n\nYou won "+reward+" DMX");
+const rewards=[20,30,50];
 
-await claimGameReward(reward);
+const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
-},1500);
+alert(
+"🎯 Perfect Shot!\n\n"+
+"You won "+reward+" DMX"
+);
 
-    }
+}
+else{
+
+alert(
+"❌ Missed Target\n\nTry again tomorrow"
+);
+
+}
+
+}
+
+function startSlot(){
+
+document.getElementById("slotGame").style.display="block";
+
+}
+
+function spinSlot(){
+
+const symbols=["7️⃣","🍒","⭐","💎","🔔"];
+
+const display=document.getElementById("slotDisplay");
+
+let spins=0;
+
+const interval=setInterval(()=>{
+
+let a=symbols[Math.floor(Math.random()*symbols.length)];
+let b=symbols[Math.floor(Math.random()*symbols.length)];
+let c=symbols[Math.floor(Math.random()*symbols.length)];
+
+display.innerText=a+" "+b+" "+c;
+
+spins++;
+
+if(spins>15){
+
+clearInterval(interval);
+
+checkSlotResult(a,b,c);
+
+}
+
+},100);
+
+}
+
+function checkSlotResult(a,b,c){
+
+if(a===b && b===c){
+
+winSound.play();
+
+alert("🎉 JACKPOT!\nYou won 100 DMX");
+
+}
+else if(a===b || b===c || a===c){
+
+alert("👍 Small win\nYou won 20 DMX");
+
+}
+else{
+
+alert("❌ Try again");
+
+}
+
+}
+
+function guessNumber(){
+
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+const userGuess = prompt("Pick a number between 1 and 5");
+
+if(!userGuess) return;
+
+const randomNumber = Math.floor(Math.random()*5)+1;
+
+if(Number(userGuess) === randomNumber){
+
+winSound.play();
+
+alert(
+"🎉 Correct Guess!\n\n"+
+"Your Number: "+userGuess+
+"\nWinning Number: "+randomNumber+
+"\n\nReward: 50 DMX"
+);
+
+}
+else{
+
+alert(
+"❌ Wrong Guess\n\n"+
+"Your Number: "+userGuess+
+"\nWinning Number: "+randomNumber
+);
+
+}
+
+}
+
+function openColorGame(){
+
+document.getElementById("colorGamePanel").style.display="block";
+
+}
+
+function pickColor(userColor){
+
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+const colors=["green","red","orange"];
+
+const result=colors[Math.floor(Math.random()*3)];
+
+if(userColor === result){
+
+winSound.play();
+
+alert("🎉 Correct color!\nYou won 30 DMX");
+
+}
+else{
+
+alert("❌ Result color: "+result+"\nBetter luck next time");
+
+}
+
+}        
     
 // ===============================
 // TELEGRAM TASK
@@ -1903,6 +2262,7 @@ alert("Link copied");
 }
 
 }
+
 
 // ===============================
 // REFERRAL BONUS CHECK
