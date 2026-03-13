@@ -2039,6 +2039,9 @@ return winner;
 
 }
 
+    if(gameRunning) return;
+gameRunning=true;
+ 
 // ===============================
 // GAME 1 — SPIN WHEEL
 // ===============================
@@ -2055,6 +2058,8 @@ if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+
+if(!(await checkGameCooldown(userAddress))) return;    
 
 spinSound.currentTime=0;
 spinSound.play();
@@ -2101,12 +2106,14 @@ document.getElementById("luckyBoxPanel").style.display="block";
 
 }
 
-function openBox(box){
+async function openBox(box){
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+
+if(!(await checkGameCooldown(userAddress))) return;
 
 boxSound.currentTime=0;
 boxSound.play();
@@ -2139,12 +2146,13 @@ document.getElementById("diceGamePanel").style.display="block";
 
 }
 
-function rollDice(){
+async function rollDice()
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+ if(!(await checkGameCooldown(userAddress))) return;   
 
 diceSound.currentTime = 0;
 diceSound.play();
@@ -2205,13 +2213,14 @@ document.getElementById("treasurePanel").style.display="block";
 
 }
 
-function pickTreasure(choice){
+async function pickTreasure(choice)
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
-
+if(!(await checkGameCooldown(userAddress))) return;
+    
 const rewards=[5,10,20,50];
 
 const reward=rewards[Math.floor(Math.random()*rewards.length)];
@@ -2232,13 +2241,15 @@ document.getElementById("cardGamePanel").style.display="block";
 
 }
 
-function flipCard(card){
+async function flipCard(card)
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
+ if(!(await checkGameCooldown(userAddress))) return;
+    
 cardSound.play();
 
 const rewards=[5,10,20,50];
@@ -2268,12 +2279,13 @@ document.getElementById("targetGamePanel").style.display="block";
 
 }
 
-function shootTarget(){
+async function shootTarget()
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+    if(!(await checkGameCooldown(userAddress))) return;
 
 const chance=Math.random();
 
@@ -2308,6 +2320,12 @@ document.getElementById("slotGame").style.display="block";
 }
 
 function spinSlot(){
+if(!userAddress){
+alert("Connect wallet first");
+return;
+}
+
+if(!(await checkGameCooldown(userAddress))) return;    
 
 const symbols=["7️⃣","🍒","⭐","💎","🔔"];
 
@@ -2329,7 +2347,7 @@ if(spins>15){
 
 clearInterval(interval);
 
-checkSlotResult(a,b,c);
+let finalA, finalB, finalC
 
 }
 
@@ -2365,12 +2383,13 @@ document.getElementById("guessGamePanel").style.display="block";
 
 }
 
-function guessNumber(num){
+async function guessNumber(num)
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+   if(!(await checkGameCooldown(userAddress))) return; 
 
 spinSound.currentTime = 0;
 spinSound.play();
@@ -2417,6 +2436,8 @@ if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+
+if(!(await checkGameCooldown(userAddress))) return;    
 
 const colors=["green","red","orange"];
 
