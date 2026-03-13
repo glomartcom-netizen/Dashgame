@@ -370,6 +370,24 @@ Orange
 
 </div>
 
+<div id="guessGamePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+Pick a number
+</p>
+
+<div class="flex justify-center gap-2">
+
+<button onclick="guessNumber(1)" class="game-btn">1</button>
+<button onclick="guessNumber(2)" class="game-btn">2</button>
+<button onclick="guessNumber(3)" class="game-btn">3</button>
+<button onclick="guessNumber(4)" class="game-btn">4</button>
+<button onclick="guessNumber(5)" class="game-btn">5</button>
+
+</div>
+
+</div>    
+
  <div id="cardGamePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
 
 <p class="text-sm text-amber-400 font-bold mb-3">
@@ -386,7 +404,23 @@ Pick a Card
 
 </div>
 
- </div>   
+ </div>
+
+<div id="targetGamePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
+
+<p class="text-sm text-amber-400 font-bold mb-3">
+🎯 Hit the Target
+</p>
+
+<div style="font-size:60px;margin-bottom:10px;">
+🎯
+</div>
+
+<button onclick="shootTarget()" class="btn-bonus">
+SHOOT
+</button>
+
+</div>    
 
 <div id="treasurePanel" style="display:none;" class="glass-card p-4 mt-4 text-center">
 
@@ -2157,40 +2191,49 @@ alert("❌ Try again");
 
 }
 
-function guessNumber(){
+function openGuessGame(){
+
+document.getElementById("guessGamePanel").style.display="block";
+
+}
+
+function guessNumber(num){
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
-const userGuess = prompt("Pick a number between 1 and 5");
+spinSound.currentTime = 0;
+spinSound.play();
 
-if(!userGuess) return;
+const random = Math.floor(Math.random()*5)+1;
 
-const randomNumber = Math.floor(Math.random()*5)+1;
+setTimeout(()=>{
 
-if(Number(userGuess) === randomNumber){
+if(num === random){
 
+winSound.currentTime = 0;
 winSound.play();
 
 alert(
 "🎉 Correct Guess!\n\n"+
-"Your Number: "+userGuess+
-"\nWinning Number: "+randomNumber+
+"Your Number: "+num+
+"\nWinning Number: "+random+
 "\n\nReward: 50 DMX"
 );
 
-}
-else{
+}else{
 
 alert(
 "❌ Wrong Guess\n\n"+
-"Your Number: "+userGuess+
-"\nWinning Number: "+randomNumber
+"Your Number: "+num+
+"\nWinning Number: "+random
 );
 
 }
+
+},800);
 
 }
 
