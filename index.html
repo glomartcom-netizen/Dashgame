@@ -1876,6 +1876,16 @@ btn.innerText = "🔇 Sound OFF";
 }
 
 }
+
+    function closeAllGames(){
+
+document.querySelectorAll(
+"#spinWheelPanel,#luckyBoxPanel,#diceGamePanel,#guessGamePanel,#cardGamePanel,#targetGamePanel,#treasurePanel,#slotGame,#colorGamePanel"
+).forEach(p=>{
+p.style.display="none";
+});
+
+}
     
   // ===============================
 // DMX GAME ENGINE FULL SYSTEM
@@ -2065,12 +2075,14 @@ return winner;
 
 }
 
+    
 // ===============================
 // GAME 1 — SPIN WHEEL
 // ===============================
 
 function openSpinWheel(){
 
+closeAllGames();
 document.getElementById("spinWheelPanel").style.display="block";
 
 }
@@ -2135,6 +2147,7 @@ addWinner(userAddress,reward);
 
 function openLuckyBox(){
 
+closeAllGames();
 document.getElementById("luckyBoxPanel").style.display="block";
 
 }
@@ -2185,6 +2198,7 @@ addWinner(userAddress,reward);
 
 function openDiceGame(){
 
+closeAllGames();
 document.getElementById("diceGamePanel").style.display="block";
 
 }
@@ -2262,7 +2276,8 @@ addWinner(userAddress,reward);
 // ===============================
 
 function openTreasure(){
-
+    
+closeAllGames();
 document.getElementById("treasurePanel").style.display="block";
 
 }
@@ -2313,6 +2328,7 @@ addWinner(userAddress,reward);
 
 function openCardGame(){
 
+closeAllGames();
 document.getElementById("cardGamePanel").style.display="block";
 
 }
@@ -2363,6 +2379,7 @@ addWinner(userAddress,reward);
 
 function openTargetGame(){
 
+closeAllGames();
 document.getElementById("targetGamePanel").style.display="block";
 
 }
@@ -2418,6 +2435,7 @@ gameRunning=false;
 
 function startSlot(){
 
+closeAllGames();
 document.getElementById("slotGame").style.display="block";
 
 }
@@ -2519,6 +2537,7 @@ addWinner(userAddress,reward);
 
 function openGuessGame(){
 
+closeAllGames();
 document.getElementById("guessGamePanel").style.display="block";
 
 }
@@ -2586,6 +2605,7 @@ gameRunning=false;
 
 function openColorGame(){
 
+closeAllGames();
 document.getElementById("colorGamePanel").style.display="block";
 
 }
@@ -2801,11 +2821,12 @@ setTimeout(async ()=>{
 playSound(winSound);
 
 alert(
-"🎮 Paid Game Result\n\n"+
+"🎮 Demo Game\n\n"+
 "Entry: "+entry+" DMX\n"+
-"You Won: "+reward+" DMX"
+"You Won: "+reward+" DMX\n\n"+
+"(Demo mode - entry fee not deducted)"
 );
-
+    
 /* claim reward */
 
 await claimGameReward(reward);
