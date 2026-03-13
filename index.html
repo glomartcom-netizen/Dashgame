@@ -2070,17 +2070,17 @@ document.getElementById("spinWheelPanel").style.display="block";
 async function spinWheelGame(){
 
 if(gameRunning) return;
-gameRunning=true;
-    
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
-if(!(await checkGameCooldown(userAddress))) return;    
+if(!(await checkGameCooldown(userAddress))) return;
 
-spinSound.currentTime=0;
-spinSound.play();
+gameRunning = true;
+
+playSound(spinSound);
 
 const rewards=[5,10,20,30,50,100];
 
@@ -2100,13 +2100,20 @@ clearInterval(interval);
 
 const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
-winSound.currentTime=0;
-winSound.play();
+playSound(winSound);
 
 alert(
 "🎡 Wheel Stopped!\n\n"+
 "You won "+reward+" DMX"
 );
+
+/* reward claim */
+
+claimGameReward(reward);
+
+/* add to winners */
+
+addWinner(userAddress,reward);
 
 }
 
@@ -2126,6 +2133,8 @@ document.getElementById("luckyBoxPanel").style.display="block";
 
 async function openBox(box){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
@@ -2133,22 +2142,30 @@ return;
 
 if(!(await checkGameCooldown(userAddress))) return;
 
-boxSound.currentTime=0;
-boxSound.play();
+gameRunning = true;
+
+playSound(boxSound);
 
 const rewards=[5,10,20,30,50];
 
-setTimeout(()=>{
+setTimeout(async ()=>{
 
 const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
-winSound.currentTime=0;
-winSound.play();
+playSound(winSound);
 
 alert(
 "🎁 Lucky Box Opened!\n\n"+
 "You won "+reward+" DMX"
 );
+
+/* claim reward */
+
+await claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
 
 },1000);
 
@@ -2166,14 +2183,18 @@ document.getElementById("diceGamePanel").style.display="block";
 
 async function rollDice(){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
- if(!(await checkGameCooldown(userAddress))) return;   
 
-diceSound.currentTime = 0;
-diceSound.play();
+if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning = true;
+
+playSound(diceSound);
 
 let rolls = 0;
 
@@ -2207,13 +2228,20 @@ else{
 reward = 5;
 }
 
-winSound.currentTime = 0;
-winSound.play();
+playSound(winSound);
 
 alert(
 "🎲 Dice Result: "+finalDice+
 "\n\nReward: "+reward+" DMX"
 );
+
+/* claim reward */
+
+claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
 
 }
 
@@ -2233,19 +2261,41 @@ document.getElementById("treasurePanel").style.display="block";
 
 async function pickTreasure(choice){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+
 if(!(await checkGameCooldown(userAddress))) return;
-    
+
+gameRunning = true;
+
 const rewards=[5,10,20,50];
 
 const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
-winSound.play();
+playSound(treasureSound);
 
-alert("💎 Treasure opened!\n\nYou found "+reward+" DMX");
+setTimeout(()=>{
+
+playSound(winSound);
+
+alert(
+"💎 Treasure Opened!\n\n"+
+"You found "+reward+" DMX"
+);
+
+/* claim reward */
+
+claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
+
+},800);
 
 }
     
@@ -2261,14 +2311,18 @@ document.getElementById("cardGamePanel").style.display="block";
 
 async function flipCard(card){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
- if(!(await checkGameCooldown(userAddress))) return;
-    
-cardSound.play();
+if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning = true;
+
+playSound(cardSound);
 
 const rewards=[5,10,20,50];
 
@@ -2276,12 +2330,20 @@ const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
 setTimeout(()=>{
 
-winSound.play();
+playSound(winSound);
 
 alert(
 "🃏 Card Flipped!\n\n"+
 "You won "+reward+" DMX"
 );
+
+/* claim reward */
+
+claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
 
 },800);
 
@@ -2299,26 +2361,39 @@ document.getElementById("targetGamePanel").style.display="block";
 
 async function shootTarget(){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
-    if(!(await checkGameCooldown(userAddress))) return;
 
-const chance=Math.random();
+if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning = true;
+
+const chance = Math.random();
 
 if(chance > 0.6){
-
-winSound.play();
 
 const rewards=[20,30,50];
 
 const reward=rewards[Math.floor(Math.random()*rewards.length)];
 
+playSound(winSound);
+
 alert(
 "🎯 Perfect Shot!\n\n"+
 "You won "+reward+" DMX"
 );
+
+/* claim reward */
+
+claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
 
 }
 else{
@@ -2326,6 +2401,8 @@ else{
 alert(
 "❌ Missed Target\n\nTry again tomorrow"
 );
+
+gameRunning=false;
 
 }
 
@@ -2339,12 +2416,16 @@ document.getElementById("slotGame").style.display="block";
 
 async function spinSlot(){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
 if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning = true;
 
 playSound(spinSound);
 
@@ -2384,9 +2465,13 @@ checkSlotResult(finalA,finalB,finalC);
 
 }
 
-function checkSlotResult(a,b,c){
+async function checkSlotResult(a,b,c){
+
+let reward = 0;
 
 if(a===b && b===c){
+
+reward = 100;
 
 playSound(winSound);
 
@@ -2395,6 +2480,8 @@ alert("🎉 JACKPOT!\nYou won 100 DMX");
 }
 else if(a===b || b===c || a===c){
 
+reward = 20;
+
 alert("👍 Small win\nYou won 20 DMX");
 
 }
@@ -2402,9 +2489,25 @@ else{
 
 alert("❌ Try again tomorrow");
 
-}
+gameRunning=false;
+
+return;
 
 }
+
+/* claim reward */
+
+await claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
+
+}
+
+// ===============================
+// GAME 8 — GUESS NUMBER
+// ===============================
 
 function openGuessGame(){
 
@@ -2414,32 +2517,46 @@ document.getElementById("guessGamePanel").style.display="block";
 
 async function guessNumber(num){
 
+if(gameRunning) return;
+
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
-   if(!(await checkGameCooldown(userAddress))) return; 
 
-spinSound.currentTime = 0;
-spinSound.play();
+if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning = true;
+
+playSound(spinSound);
 
 const random = Math.floor(Math.random()*5)+1;
 
-setTimeout(()=>{
+setTimeout(async ()=>{
 
 if(num === random){
 
-winSound.currentTime = 0;
-winSound.play();
+const reward = 50;
+
+playSound(winSound);
 
 alert(
 "🎉 Correct Guess!\n\n"+
 "Your Number: "+num+
 "\nWinning Number: "+random+
-"\n\nReward: 50 DMX"
+"\n\nReward: "+reward+" DMX"
 );
 
-}else{
+/* claim reward */
+
+await claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
+
+}
+else{
 
 alert(
 "❌ Wrong Guess\n\n"+
@@ -2447,11 +2564,17 @@ alert(
 "\nWinning Number: "+random
 );
 
+gameRunning=false;
+
 }
 
 },800);
 
 }
+
+// ===============================
+// GAME 9 — COLOR PICK
+// ===============================
 
 function openColorGame(){
 
@@ -2459,14 +2582,18 @@ document.getElementById("colorGamePanel").style.display="block";
 
 }
 
-function pickColor(userColor){
+async function pickColor(userColor){
+
+if(gameRunning) return;
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
 
-if(!(await checkGameCooldown(userAddress))) return;    
+if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning = true;
 
 const colors=["green","red","orange"];
 
@@ -2474,24 +2601,49 @@ const result=colors[Math.floor(Math.random()*3)];
 
 if(userColor === result){
 
-winSound.play();
+const reward = 30;
 
-alert("🎉 Correct color!\nYou won 30 DMX");
+playSound(winSound);
+
+alert(
+"🎉 Correct Color!\n\n"+
+"You chose: "+userColor+
+"\nResult: "+result+
+"\n\nReward: "+reward+" DMX"
+);
+
+/* claim reward */
+
+await claimGameReward(reward);
+
+/* leaderboard update */
+
+addWinner(userAddress,reward);
 
 }
 else{
 
-alert("❌ Result color: "+result+"\nBetter luck next time");
+alert(
+"❌ Wrong Color\n\n"+
+"Result color: "+result
+);
+
+gameRunning=false;
 
 }
 
-}        
+}
     
 // ===============================
 // TELEGRAM TASK
 // ===============================
 
 function joinTelegram(){
+
+if(localStorage.getItem("tgJoined")){
+alert("Telegram task already completed");
+return;
+}
 
 window.open("https://t.me/YOUR_CHANNEL","_blank");
 
@@ -2506,6 +2658,11 @@ alert("Telegram task recorded");
 // ===============================
 
 function shareWebsite(){
+
+if(localStorage.getItem("siteShared")){
+alert("Website already shared");
+return;
+}
 
 if(navigator.share){
 
@@ -2522,8 +2679,9 @@ alert("Link copied");
 
 }
 
-}
+localStorage.setItem("siteShared","true");
 
+}
 
 // ===============================
 // REFERRAL BONUS CHECK
@@ -2537,7 +2695,9 @@ localStorage.getItem("refCount") || "0"
 
 if(refs>=3){
 
-alert("Referral bonus unlocked");
+alert("🎁 Referral bonus unlocked!");
+
+claimGameReward(20);
 
 }
 
@@ -2549,20 +2709,27 @@ alert("Referral bonus unlocked");
 
 function resetWeeklyJackpot(){
 
+if(!confirm("Reset weekly jackpot?")) return;
+
 weeklyPlayers=[];
 
 localStorage.removeItem("weeklyPlayers");
+
+alert("Weekly jackpot reset");
 
 }
 
 // ===============================
 // DMX GAME ENGINE END
-// =============================== 
+// ===============================
+    
 function showWeeklyWinner(){
 
-const winner = getWeeklyWinner();
-
 const el = document.getElementById("jackpotWinner");
+
+if(!el) return;
+
+const winner = getWeeklyWinner();
 
 if(!winner){
 
@@ -2572,19 +2739,25 @@ return;
 
 }
 
-el.innerText = "Current Leader: " + 
+const short =
 winner.slice(0,6) + "..." + winner.slice(-4);
+
+el.innerText = "Current Leader: " + short;
 
 }
 
-showWeeklyWinner();
-
+setInterval(showWeeklyWinner,10000);
+    
 async function playPaidGame(entry){
+
+if(gameRunning) return;
 
 if(!userAddress){
 alert("Connect wallet first");
 return;
 }
+
+gameRunning = true;
 
 let reward=0;
 
@@ -2615,7 +2788,7 @@ reward=pool[Math.floor(Math.random()*pool.length)];
 
 playSound(spinSound);
 
-setTimeout(()=>{
+setTimeout(async ()=>{
 
 playSound(winSound);
 
@@ -2625,29 +2798,40 @@ alert(
 "You Won: "+reward+" DMX"
 );
 
+/* claim reward */
+
+await claimGameReward(reward);
+
+/* update leaderboard */
+
+addWinner(userAddress,reward);
+
 },2000);
 
-      }    
+}
 
 function addWinner(wallet,reward){
 
-const list=document.getElementById("winnerList");
+const list = document.getElementById("winnerList");
 
-const item=document.createElement("li");
+if(!list) return;
 
-const short=
-wallet.slice(0,5)+"..."+wallet.slice(-3);
+const item = document.createElement("li");
 
-item.innerHTML=short+" won <b>"+reward+" DMX</b>";
+const short =
+wallet.slice(0,6) + "..." + wallet.slice(-4);
+
+item.innerHTML =
+short + " won <b>" + Number(reward).toFixed(0) + " DMX</b>";
 
 list.prepend(item);
 
 // limit to 5 items
-if(list.children.length>5){
+if(list.children.length > 5){
 list.removeChild(list.lastChild);
 }
 
-    }    
+}
      
 </script>  
 </body>  
