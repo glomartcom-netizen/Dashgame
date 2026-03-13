@@ -330,6 +330,29 @@ class="bg-cyan-500 px-4 py-2 rounded-xl font-bold mt-4">
 
 </div>
 
+<div class="mt-4 glass-card p-4 text-xs text-gray-300">
+
+<p class="text-amber-400 font-bold mb-2">
+🎁 Referral Bonus Status
+</p>
+
+<div class="flex justify-between">
+<span>Referrals:</span>
+<span id="refCountDisplay" class="text-cyan-400 font-bold">0</span>
+</div>
+
+<div class="flex justify-between">
+<span>Bonus Status:</span>
+<span id="refStatus" class="text-gray-400">Locked</span>
+</div>
+
+<div class="flex justify-between">
+<span>Last Update:</span>
+<span id="refUpdateTime" class="text-gray-400">--</span>
+</div>
+
+</div>    
+
 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 
 <button onclick="openSpinWheel()" class="game-btn">
@@ -1072,15 +1095,21 @@ document.getElementById('capDisplay').innerText = `${earned.toFixed(0)} / ${cap.
 document.getElementById('capBar').style.width = prog + "%";  
 document.getElementById('capPercent').innerText = prog.toFixed(1) + "%";  
               
-            const banner = document.getElementById('statusBanner');  
-            if(u[9]) {  
-                banner.innerText = "🚨 INCOME CAP REACHED - PLEASE RESTAKE 🚨";  
-                banner.className = "block bg-red-600/20 text-red-500 p-3 rounded-xl text-center font-black animate-pulse mb-4";  
-            } else { banner.className = "hidden"; }  
-  
-            updateTimer(Number(stats[6]));  
-        } catch(e) { console.warn("Syncing..."); }  
-    }  
+            const banner = document.getElementById('statusBanner');
+
+if(u[9]) {
+    banner.innerText = "🚨 INCOME CAP REACHED - PLEASE RESTAKE 🚨";
+    banner.className = "block bg-red-600/20 text-red-500 p-3 rounded-xl text-center font-black animate-pulse mb-4";
+} else {
+    banner.className = "hidden";
+}
+
+updateTimer(Number(stats[6]));
+referralBonusCheck();
+
+} catch(e) { 
+    console.warn("Syncing..."); 
+}
   
     function updateTimer(expiry) {  
         const diff = expiry - Math.floor(Date.now() / 1000);  
@@ -1974,6 +2003,8 @@ return false;
 
 async function claimGameReward(amount){
 
+if(amount > 100) return alert("Invalid reward");
+
 if(gameRunning) return;
 gameRunning = true;
 
@@ -2711,26 +2742,38 @@ localStorage.setItem("siteShared","true");
 
 }
 
-// ===============================
-// REFERRAL BONUS CHECK
-// ===============================
-
 function referralBonusCheck(){
 
 const refs=parseInt(
 localStorage.getItem("refCount") || "0"
 );
 
-if(refs>=3){
+document.getElementById("refCountDisplay").innerText = refs;
+
+const now = new Date().toLocaleTimeString();
+
+document.getElementById("refUpdateTime").innerText = now;
+
+if(refs >= 3){
+
+document.getElementById("refStatus").innerText = "Unlocked";
+document.getElementById("refStatus").style.color = "#10b981";
 
 alert("🎁 Referral bonus unlocked!");
 
 claimGameReward(20);
 
+localStorage.setItem("refCount","0");
+
 }
+else{
+
+document.getElementById("refStatus").innerText = "Locked";
+document.getElementById("refStatus").style.color = "#ef4444";
 
 }
 
+}
 // ===============================
 // RESET WEEKLY JACKPOT (ADMIN)
 // ===============================
