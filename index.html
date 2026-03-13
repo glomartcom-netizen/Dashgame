@@ -1786,11 +1786,11 @@ function setButtonState(isLoading) {
     }
     }
 
-  function toggleGamePanel(){
+function toggleGamePanel(){
 
 const panel = document.getElementById("gamePanel");
 
-if(panel.style.display === "none"){
+if(panel.style.display === "none" || panel.style.display === ""){
 
 panel.style.display = "block";
 
@@ -2007,13 +2007,21 @@ gameRunning=false;
 
 function recordWin(wallet,reward){
 
+if(!weeklyPlayers) weeklyPlayers = [];
+
 weeklyPlayers.push({
 
 wallet:wallet,
-reward:reward,
+reward:Number(reward),
 time:Date.now()
 
 });
+
+/* keep max 100 records */
+
+if(weeklyPlayers.length > 100){
+weeklyPlayers.shift();
+}
 
 localStorage.setItem(
 "weeklyPlayers",
@@ -2032,19 +2040,19 @@ showWeeklyWinner();
 
 function getWeeklyWinner(){
 
-let max=0;
-let winner=null;
+let max = 0;
+let winner = null;
 
 const now = Date.now();
-const week = 7*24*60*60*1000;
+const week = 7 * 24 * 60 * 60 * 1000;
 
 weeklyPlayers.forEach(p=>{
 
 if(now - p.time <= week){
 
-if(p.reward > max){
+if(Number(p.reward) > max){
 
-max = p.reward;
+max = Number(p.reward);
 winner = p.wallet;
 
 }
