@@ -265,6 +265,10 @@ Invite friends using your referral link. Build your network and earn additional 
 🃏 Card Flip
 </button>
 
+<button onclick="targetShot()" class="game-btn">
+🎯 Target Shot
+</button>    
+
 </div>
 
 <div class="mt-6 border-t border-white/10 pt-4">
@@ -1824,6 +1828,45 @@ await claimGameReward(reward);
 },1200);
 
 }
+
+// ===============================
+// GAME 6 — TARGET SHOT
+// ===============================
+
+async function targetShot(){
+
+if(gameRunning) return;
+
+if(!(await checkGameCooldown(userAddress))) return;
+
+gameRunning=true;
+
+const shots = [0,10,20,50,100];
+
+const reward = shots[Math.floor(Math.random()*shots.length)];
+
+setTimeout(async()=>{
+
+if(reward === 0){
+
+alert("🎯 Shot Missed!\n\nBetter luck next time");
+
+gameRunning=false;
+
+return;
+
+}
+
+winSound.play();
+
+alert("🎯 Target Hit!\n\nYou won "+reward+" DMX");
+
+await claimGameReward(reward);
+
+},1500);
+
+    }
+    
 // ===============================
 // TELEGRAM TASK
 // ===============================
