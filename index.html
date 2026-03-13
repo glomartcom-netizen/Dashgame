@@ -199,6 +199,50 @@ class="bg-cyan-500 px-4 py-2 rounded-xl font-bold mt-4">
 🎮 Play & Earn DMX
 </h2>
 
+<div class="bg-black/40 border border-cyan-500/20 rounded-xl p-4 mb-4 text-xs text-gray-300 space-y-3">
+
+<p class="text-amber-400 font-bold text-sm">
+📜 Game Rules
+</p>
+
+<ul class="space-y-1">
+<li>• Each wallet can play <b>once every 24 hours</b>.</li>
+<li>• Game rewards range between <b>5 – 100 DMX</b>.</li>
+<li>• Rewards will be added to your <b>Claimable Balance</b>.</li>
+<li>• You can claim rewards once it reaches <b>100 DMX minimum</b>.</li>
+</ul>
+
+<div class="border-t border-white/10 pt-2">
+
+<p class="text-amber-400 font-bold text-sm">
+🎁 Bonus Tasks
+</p>
+
+<ul class="space-y-1">
+<li>• Join our Telegram channel to receive <b>+1 extra spin</b>.</li>
+<li>• Share the website with friends to unlock <b>+1 bonus spin</b>.</li>
+</ul>
+
+</div>
+
+<div class="border-t border-white/10 pt-2">
+
+<p class="text-amber-400 font-bold text-sm">
+👥 Referral Rewards
+</p>
+
+<p class="text-gray-300">
+Invite friends using your referral link. Build your network and earn additional team rewards.
+</p>
+
+</div>
+
+<p class="text-[10px] text-gray-400 italic">
+💡 Game rewards will appear in the <b>Claimable</b> section of your dashboard.
+</p>
+
+</div>    
+
 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 
 <button onclick="spinWheel()" class="game-btn">
@@ -222,6 +266,22 @@ class="bg-cyan-500 px-4 py-2 rounded-xl font-bold mt-4">
 </button>
 
 </div>
+
+<div class="mt-6 border-t border-white/10 pt-4">
+
+<h3 class="text-sm text-amber-400 font-bold mb-2">
+🏆 Weekly Jackpot Leaderboard
+</h3>
+
+<p class="text-xs text-gray-400 mb-2">
+Top player with the highest game reward this week wins the jackpot.
+</p>
+
+<div id="jackpotWinner" class="text-sm text-emerald-400 font-bold">
+Loading winner...
+</div>
+
+</div>    
 
 
 <!-- BONUS TASKS -->
@@ -1834,6 +1894,26 @@ localStorage.removeItem("weeklyPlayers");
 // ===============================
 // DMX GAME ENGINE END
 // =============================== 
+function showWeeklyWinner(){
+
+const winner = getWeeklyWinner();
+
+const el = document.getElementById("jackpotWinner");
+
+if(!winner){
+
+el.innerText = "No winner yet this week";
+
+return;
+
+}
+
+el.innerText = "Current Leader: " + 
+winner.slice(0,6) + "..." + winner.slice(-4);
+
+}
+
+showWeeklyWinner();    
      
 </script>  
 </body>  
