@@ -2003,17 +2003,27 @@ return false;
 
 async function claimGameReward(amount){
 
-if(amount > 100) return alert("Invalid reward");
+const validRewards=[5,10,20,30,50,100];
+
+if(!validRewards.includes(amount)){
+alert("Invalid reward");
+return;
+}
 
 if(gameRunning) return;
+
 gameRunning = true;
 
 try{
 
 if(!contract || !userAddress){
+
 alert("Connect wallet first");
+
 gameRunning=false;
+
 return;
+
 }
 
 const tx = await contract.claimGameReward(
@@ -2041,7 +2051,6 @@ gameRunning=false;
 }
 
 }
-
 // ===============================
 // RECORD WIN FOR JACKPOT
 // ===============================
@@ -2818,6 +2827,7 @@ el.innerText = "Current Leader: " + short;
 }
 
 setInterval(showWeeklyWinner,10000);
+        
     
 async function playPaidGame(entry){
 
@@ -2829,6 +2839,24 @@ return;
 }
 
 gameRunning = true;
+
+/* STEP 1 — PAY ENTRY FEE */
+
+try{
+
+const tx = await contract.playPaidGame(entry);
+
+await tx.wait();
+
+}catch(e){
+
+alert("Entry payment failed");
+
+gameRunning=false;
+
+return;
+
+}
 
 let reward=0;
 
@@ -2864,24 +2892,24 @@ setTimeout(async ()=>{
 playSound(winSound);
 
 alert(
-"🎮 Demo Game\n\n"+
+"🎮 Game Result\n\n"+
 "Entry: "+entry+" DMX\n"+
-"You Won: "+reward+" DMX\n\n"+
-"(Demo mode - entry fee not deducted)"
+"You Won: "+reward+" DMX"
 );
-    
-/* claim reward */
+
+/* STEP 2 — CLAIM REWARD */
 
 await claimGameReward(reward);
 
-/* update leaderboard */
+/* leaderboard */
 
 addWinner(userAddress,reward);
+
+gameRunning=false;
 
 },2000);
 
 }
-
 function addWinner(wallet,reward){
 
 const list = document.getElementById("winnerList");
