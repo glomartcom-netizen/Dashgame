@@ -51,6 +51,10 @@ margin-top:8px;
 transition:all 0.3s ease;
     }
     
+body{
+transition:transform 0.2s ease;
+          }
+    
 @keyframes claimGlow {
 
 0% { box-shadow: 0 0 0px rgba(251,191,36,0.6); }
@@ -1447,10 +1451,13 @@ panel.style.display = "none";
       }
 
   // SOUND EFFECTS
-const spinSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-const winSound = new Audio("https://actions.google.com/sounds/v1/cartoon/cheers.ogg");
-const diceSound = new Audio("https://actions.google.com/sounds/v1/board_games/dice_roll.ogg");
-
+const spinSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
+const winSound = new Audio("https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3");
+const diceSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2068/2068-preview.mp3");
+const boxSound = new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3");
+const cardSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2084/2084-preview.mp3");
+const treasureSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2218/2218-preview.mp3");
+    
   // ===============================
 // DMX GAME ENGINE FULL SYSTEM
 // ===============================
@@ -1625,11 +1632,19 @@ if(!(await checkGameCooldown(userAddress))) return;
 
 gameRunning=true;
 
+spinSound.play();
+
 const reward=getRandomReward();
+
+document.body.style.transform="rotate(2deg)";
 
 setTimeout(async()=>{
 
-alert("Spin wheel reward "+reward+" DMX");
+document.body.style.transform="rotate(0deg)";
+
+winSound.play();
+
+alert("🎡 Spin Wheel Result\n\nYou won "+reward+" DMX");
 
 await claimGameReward(reward);
 
@@ -1649,11 +1664,15 @@ if(!(await checkGameCooldown(userAddress))) return;
 
 gameRunning=true;
 
+boxSound.play();
+
 const reward=getRandomReward();
 
 setTimeout(async()=>{
 
-alert("Lucky box reward "+reward+" DMX");
+winSound.play();
+
+alert("🎁 Lucky Box Opened\n\nReward: "+reward+" DMX");
 
 await claimGameReward(reward);
 
@@ -1673,16 +1692,17 @@ if(!(await checkGameCooldown(userAddress))) return;
 
 gameRunning=true;
 
-// valid rewards only
+diceSound.play();
+
 const diceRewards=[5,10,20,30];
 
-const reward=diceRewards[
-Math.floor(Math.random()*diceRewards.length)
-];
+const reward=diceRewards[Math.floor(Math.random()*diceRewards.length)];
 
 setTimeout(async()=>{
 
-alert("Dice reward "+reward+" DMX");
+winSound.play();
+
+alert("🎲 Dice Rolled\n\nReward: "+reward+" DMX");
 
 await claimGameReward(reward);
 
@@ -1702,14 +1722,21 @@ if(!(await checkGameCooldown(userAddress))) return;
 
 gameRunning=true;
 
+treasureSound.play();
+
 const reward=getRandomReward();
 
-alert("Treasure reward "+reward+" DMX");
+setTimeout(async()=>{
+
+winSound.play();
+
+alert("💎 Treasure Found\n\nReward: "+reward+" DMX");
 
 await claimGameReward(reward);
 
-}
+},1500);
 
+}
 // ===============================
 // GAME 5 — CARD FLIP
 // ===============================
@@ -1722,18 +1749,21 @@ if(!(await checkGameCooldown(userAddress))) return;
 
 gameRunning=true;
 
+cardSound.play();
+
 const reward=getRandomReward();
 
 setTimeout(async()=>{
 
-alert("Card reward "+reward+" DMX");
+winSound.play();
+
+alert("🃏 Card Flip Result\n\nYou got "+reward+" DMX");
 
 await claimGameReward(reward);
 
-},1000);
+},1200);
 
 }
-
 // ===============================
 // TELEGRAM TASK
 // ===============================
