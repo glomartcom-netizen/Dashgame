@@ -21,7 +21,36 @@ max-width:100%;
 max-height:180px;
 object-fit:cover;
 }
+.game-btn{
+background:#0f172a;
+border:1px solid #06b6d4;
+padding:16px;
+border-radius:12px;
+font-weight:bold;
+transition:0.3s;
+cursor:pointer;
+text-align:center;
+}
 
+.game-btn:hover{
+background:#06b6d4;
+color:black;
+transform:translateY(-3px);
+box-shadow:0 0 10px #06b6d4;
+}
+
+.btn-bonus{
+background:linear-gradient(90deg,#f59e0b,#ea580c);
+padding:10px;
+border-radius:10px;
+font-weight:bold;
+width:100%;
+margin-top:8px;
+}
+    #gamePanel{
+transition:all 0.3s ease;
+    }
+    
 @keyframes claimGlow {
 
 0% { box-shadow: 0 0 0px rgba(251,191,36,0.6); }
@@ -574,7 +603,9 @@ window.open("https://bscscan.com/address/" + addr, "_blank");
         "function sellDMX(uint256)",
         "function usdt() view returns (address)",
         "function dmx() view returns (address)",
-        "function pancakeSwapEnabled() view returns (bool)"
+        "function pancakeSwapEnabled() view returns (bool)",
+        "function lastGamePlayed(address) view returns (uint256)",
+        "function claimGameReward(uint256)"
     ];  
   
     const TOKEN_ABI = ["function approve(address, uint256) public returns (bool)", "function allowance(address, address) public view returns (uint256)"];  
