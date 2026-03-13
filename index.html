@@ -979,10 +979,7 @@ window.open("https://bscscan.com/address/" + addr, "_blank");
         "function sellDMX(uint256)",
         "function usdt() view returns (address)",
         "function dmx() view returns (address)",
-        "function pancakeSwapEnabled() view returns (bool)",
-        "function lastGamePlayed(address) view returns (uint256)",
-        "function claimGameReward(uint256)",
-        "function playPaidGame(uint256)"
+        "function pancakeSwapEnabled() view returns (bool)"
     ];  
   
     const TOKEN_ABI = ["function approve(address, uint256) public returns (bool)", "function allowance(address, address) public view returns (uint256)"];  
@@ -1061,7 +1058,8 @@ console.log("Dashboard sync error");
 }      
       
 },10000);      
-      
+     
+    
     async function refreshData() {  
         if(!contract || !userAddress) return;  
         const f = ethers.utils.formatEther;  
